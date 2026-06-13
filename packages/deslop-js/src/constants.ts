@@ -217,6 +217,7 @@ export const PLATFORM_SUFFIXES = [
   ".native",
   ".ios",
   ".android",
+  ".tv",
   ".desktop",
   ".windows",
   ".macos",
@@ -227,6 +228,18 @@ export const PLATFORM_SUFFIXES = [
 ];
 
 export const REACT_NATIVE_PLATFORM_EXTENSIONS = [
+  ".ios.tv.ts",
+  ".ios.tv.tsx",
+  ".ios.tv.js",
+  ".ios.tv.jsx",
+  ".android.tv.ts",
+  ".android.tv.tsx",
+  ".android.tv.js",
+  ".android.tv.jsx",
+  ".tv.ts",
+  ".tv.tsx",
+  ".tv.js",
+  ".tv.jsx",
   ".web.ts",
   ".web.tsx",
   ".web.js",

@@ -162,6 +162,7 @@ export interface DependencyGraph {
   edges: Edge[];
   reverseEdges: Map<number, number[]>;
   fileIdMap: Map<string, number>;
+  hasReactNative: boolean;
 }
 
 export interface UnusedFile {

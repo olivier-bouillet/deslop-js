@@ -6,9 +6,26 @@ import type {
   DeslopConfig,
   MemberAccess,
 } from "../types.js";
+import { platformStrippedBasePath } from "../utils/platform-stripped-base-path.js";
+
+// React Native resolves an extension-less import to a single platform variant,
+// so re-key usage by platform base path to mark a used export's sibling
+// variants (`foo.ts` vs `foo.web.ts`) as used too.
+const buildPlatformSiblingUsage = (usageMap: Set<string>): Set<string> => {
+  const platformBaseKeys = new Set<string>();
+  for (const usageKey of usageMap) {
+    const separatorIndex = usageKey.lastIndexOf("::");
+    if (separatorIndex === -1) continue;
+    const path = usageKey.slice(0, separatorIndex);
+    const name = usageKey.slice(separatorIndex + 2);
+    platformBaseKeys.add(`${platformStrippedBasePath(path)}::${name}`);
+  }
+  return platformBaseKeys;
+};
 
 export const detectDeadExports = (graph: DependencyGraph, config: DeslopConfig): UnusedExport[] => {
   const usageMap = buildUsageMap(graph);
+  const platformSiblingUsage = graph.hasReactNative ? buildPlatformSiblingUsage(usageMap) : null;
   const unusedExports: UnusedExport[] = [];
 
   for (const module of graph.modules) {
@@ -35,6 +52,15 @@ export const detectDeadExports = (graph: DependencyGraph, config: DeslopConfig):
 
       const usageKey = `${module.fileId.path}::${exportInfo.name}`;
       if (usageMap.has(usageKey)) continue;
+
+      if (
+        platformSiblingUsage &&
+        platformSiblingUsage.has(
+          `${platformStrippedBasePath(module.fileId.path)}::${exportInfo.name}`,
+        )
+      ) {
+        continue;
+      }
 
       if (module.localIdentifierReferences.includes(exportInfo.name)) continue;
 

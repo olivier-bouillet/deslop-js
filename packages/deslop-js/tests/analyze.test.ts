@@ -5028,3 +5028,45 @@ describe("typescript-smells", () => {
     );
   });
 });
+
+describe("react-native-platform-variants", () => {
+  it("does not flag a platform-variant export whose sibling variant is used", async () => {
+    const result = await scanFixture("react-native-platform-variants");
+    const deadNames = deadExportNames(result);
+    assert.ok(
+      !deadNames.includes("useThing"),
+      `useThing has platform variants (useThing.ts / useThing.web.ts) that are both real implementations of an imported module; it must not be reported as unused. Got: ${JSON.stringify(deadNames)}`,
+    );
+    assert.ok(
+      !deadNames.includes("greeting"),
+      `greeting has a .native variant (greeting.ts / greeting.native.ts); neither must be reported as unused. Got: ${JSON.stringify(deadNames)}`,
+    );
+    assert.ok(
+      !deadNames.includes("Panel"),
+      `Panel has an iOS-TV compound variant (panel.tsx / panel.ios.tv.tsx); neither must be reported as unused. Got: ${JSON.stringify(deadNames)}`,
+    );
+    assert.ok(
+      !deadNames.includes("Banner"),
+      `Banner has an Android-TV compound variant (banner.tsx / banner.android.tv.tsx); neither must be reported as unused. Got: ${JSON.stringify(deadNames)}`,
+    );
+  });
+
+  it("still flags a genuinely unused export in a React Native project", async () => {
+    const result = await scanFixture("react-native-platform-variants");
+    assert.ok(
+      deadExportNames(result).includes("deadHelper"),
+      "deadHelper lives in a reachable module but has no importer and no platform sibling — it must still be reported as unused",
+    );
+  });
+
+  it("does not treat a non-platform dotted filename (`.utils.ts`) as a platform variant", async () => {
+    const fixtureDir = resolve(FIXTURES_DIR, "react-native-platform-variants");
+    const result = await scanFixture("react-native-platform-variants");
+    const byFile = deadExportsByFile(result, fixtureDir);
+    assert.deepEqual(
+      byFile["format.utils.ts"],
+      ["formatValue"],
+      `format.utils.ts is a normal module, not a platform variant of format.ts; its unused \`formatValue\` must be flagged even though format.ts exports a used \`formatValue\`. Got: ${JSON.stringify(byFile)}`,
+    );
+  });
+});

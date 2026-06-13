@@ -22,7 +22,10 @@ export interface ModuleLinkInput {
   isGitIgnored: boolean;
 }
 
-export const buildDependencyGraph = (inputs: ModuleLinkInput[]): DependencyGraph => {
+export const buildDependencyGraph = (
+  inputs: ModuleLinkInput[],
+  hasReactNative = false,
+): DependencyGraph => {
   const normalizedInputs = inputs.map((input) => ({
     ...input,
     fileId: {
@@ -167,5 +170,5 @@ export const buildDependencyGraph = (inputs: ModuleLinkInput[]): DependencyGraph
     }
   }
 
-  return { modules, edges, reverseEdges, fileIdMap };
+  return { modules, edges, reverseEdges, fileIdMap, hasReactNative };
 };

@@ -5,24 +5,13 @@ import type {
   RedundantAlias,
 } from "../types.js";
 import { PLATFORM_SUFFIXES } from "../constants.js";
+import { platformStrippedBasePath } from "../utils/platform-stripped-base-path.js";
 
 const isPlatformSpecificModulePath = (modulePath: string): boolean => {
   const extensionIndex = modulePath.lastIndexOf(".");
   if (extensionIndex === -1) return false;
   const withoutExtension = modulePath.slice(0, extensionIndex);
   return PLATFORM_SUFFIXES.some((suffix) => withoutExtension.endsWith(suffix));
-};
-
-const platformStrippedBasePath = (modulePath: string): string => {
-  const extensionIndex = modulePath.lastIndexOf(".");
-  if (extensionIndex === -1) return modulePath;
-  const withoutExtension = modulePath.slice(0, extensionIndex);
-  for (const suffix of PLATFORM_SUFFIXES) {
-    if (withoutExtension.endsWith(suffix)) {
-      return withoutExtension.slice(0, -suffix.length) + modulePath.slice(extensionIndex);
-    }
-  }
-  return modulePath;
 };
 
 const buildPlatformSiblingGroupSizes = (graph: DependencyGraph): Map<string, number> => {

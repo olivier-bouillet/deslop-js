@@ -660,7 +660,7 @@ export const analyze = async (config: DeslopConfig): Promise<ScanResult> => {
 
   let moduleGraph: ReturnType<typeof buildDependencyGraph>;
   try {
-    moduleGraph = buildDependencyGraph(graphInputs);
+    moduleGraph = buildDependencyGraph(graphInputs, hasReactNative);
   } catch (graphError) {
     setupErrors.push(
       new DetectorError({

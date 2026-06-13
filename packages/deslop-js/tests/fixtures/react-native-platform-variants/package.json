@@ -1,0 +1,8 @@
+{
+  "name": "react-native-platform-variants",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "react-native": "*"
+  }
+}

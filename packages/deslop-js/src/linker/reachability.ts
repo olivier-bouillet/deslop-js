@@ -1,5 +1,5 @@
 import type { DependencyGraph, Edge } from "../types.js";
-import { PLATFORM_SUFFIXES } from "../constants.js";
+import { platformStrippedBasePath } from "../utils/platform-stripped-base-path.js";
 
 const PLATFORM_DIRECTORY_NAMES = new Set([
   "web",
@@ -10,19 +10,6 @@ const PLATFORM_DIRECTORY_NAMES = new Set([
   "windows",
   "macos",
 ]);
-
-const stripPlatformSuffix = (filePath: string): string | undefined => {
-  for (const suffix of PLATFORM_SUFFIXES) {
-    const extensionIndex = filePath.lastIndexOf(".");
-    if (extensionIndex === -1) continue;
-
-    const withoutExtension = filePath.slice(0, extensionIndex);
-    if (withoutExtension.endsWith(suffix)) {
-      return withoutExtension.slice(0, -suffix.length) + filePath.slice(extensionIndex);
-    }
-  }
-  return undefined;
-};
 
 const stripPlatformDirectory = (filePath: string): string | undefined => {
   const segments = filePath.split("/");
@@ -160,8 +147,8 @@ export const traceReachability = (graph: DependencyGraph): void => {
   for (let moduleIndex = 0; moduleIndex < totalModules; moduleIndex++) {
     const modulePath = graph.modules[moduleIndex].fileId.path;
 
-    const basePathFromSuffix = stripPlatformSuffix(modulePath);
-    if (basePathFromSuffix) {
+    const basePathFromSuffix = platformStrippedBasePath(modulePath);
+    if (basePathFromSuffix !== modulePath) {
       addToSiblingGroup(basePathFromSuffix, moduleIndex);
     }
 
